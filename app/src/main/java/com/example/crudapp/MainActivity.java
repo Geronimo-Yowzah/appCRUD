@@ -29,9 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     String getUrl = "https://jsonplaceholder.typicode.com/";
 
-    TextView okay_text,cancel_text,delete_text;
+    TextView okay_text, cancel_text, delete_text;
 
-    ImageView btnadd,btnedit,btndelete;
+    ImageView btnadd, btnedit, btndelete;
 
     Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(getUrl)
@@ -43,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     PostsAdapter postsAdapter;
 
-    List<Posts> posts = new ArrayList<>();
-
     List<Posts> deleteData = new ArrayList<>();
 
     List<Posts> postsList = new ArrayList<>();
+
+    MyApplication app = (MyApplication) getApplication();
 
     Bundle bundle;
 
@@ -64,8 +64,21 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        app = (MyApplication) getApplication();
+
         initialAdapter();
-        callResponse();
+        if (app.getData() == null) {
+            callResponse();
+        } else {
+            bundle = getIntent().getExtras();
+            ArrayList<Posts> postsList1 = bundle.getParcelableArrayList("dataPost");
+            ArrayList<Posts> postsList2 = bundle.getParcelableArrayList("dataPut");
+            if (postsList1 != null) {
+                callCreate();
+            } else if (postsList2 != null) {
+                callUpdate();
+            }
+        }
 
         btnadd = findViewById(R.id.btnAdd);
         btnadd.setOnClickListener(new View.OnClickListener() {
@@ -77,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initialAdapter(){
+    private void initialAdapter() {
         dialog = new Dialog(MainActivity.this);
         postsAdapter = new PostsAdapter(MainActivity.this, new PostsAdapter.PostsAdapterListener() {
             @Override
@@ -113,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             public void onEdit(Posts data) {
                 Toast.makeText(MainActivity.this, "Edit", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(MainActivity.this, EditActivity.class);
-                EditModel editModel = new EditModel(data.getId(),data.getUserID(),data.getTitle(),data.getBody());
+                EditModel editModel = new EditModel(data.getId(), data.getUserID(), data.getTitle(), data.getBody());
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("data", editModel);
                 i.putExtras(bundle);
@@ -155,59 +168,20 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(postsAdapter);
     }
 
-    private void callResponse(){
+    private void callResponse() {
         Call<List<Posts>> call = jsonPlaceholder.getPosts();
         call.enqueue(new Callback<List<Posts>>() {
             @Override
             public void onResponse(Call<List<Posts>> call, Response<List<Posts>> response) {
-                if(!response.isSuccessful()){
+                if (!response.isSuccessful()) {
                     Toast.makeText(MainActivity.this, response.code(), Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 postsList = response.body();
-                bundle = getIntent().getExtras();
-                if(bundle != null){
-                    ArrayList<Posts> postsList1 = bundle.getParcelableArrayList("dataPost");
-                    ArrayList<Posts> postsList2 = bundle.getParcelableArrayList("dataPut");
-                    if(postsList1 != null){
-                        posts.clear();
-                        posts.addAll(postsList1);
-                        posts.addAll(postsList);
-                        postsAdapter.setData(posts);
-                    }
-                    if(postsList2 != null){
-                        Posts posts1 = null;
-                        for (int i=0 ; i < postsList.size() ; i++){
-                            if(postsList.get(i).id.equals(postsList2.get(0).getId())){
-                                posts1 = postsList.get(i);
-                            }
-                        }
-                        if(posts1 != null){
-                            postsList.remove(posts1);
-                        }
-                        posts.clear();
-                        posts.addAll(postsList2);
-                        posts.addAll(postsList);
-                        postsAdapter.setData(posts);
-                    }
-                }else {
-                    posts.clear();
-                    if(postsList != null && deleteData.size() != 0){
-                        for(int i = 0 ; i< postsList.size() ; i++){
-                            for(int j = 0 ; j < deleteData.size() ; j++){
-                                if(postsList.get(i).getId().equals(deleteData.get(j).getId())){
-                                    postsList.remove(postsList.get(i));
-                                }
-                            }
-                        }
-                        posts.addAll(postsList);
-                        postsAdapter.setData(posts);
-                    }else {
-                        posts.addAll(postsList);
-                        postsAdapter.setData(posts);
-                    }
+                if (app.getData() == null) {
+                    app.setData(postsList);
                 }
+                postsAdapter.setData(app.getData());
             }
 
             @Override
@@ -217,16 +191,135 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void deletePost(int id){
+//    bundle = getIntent().getExtras();
+//                if(bundle != null){
+//        ArrayList<Posts> postsList1 = bundle.getParcelableArrayList("dataPost");
+//        ArrayList<Posts> postsList2 = bundle.getParcelableArrayList("dataPut");
+//        if(postsList1 != null){
+//            posts.clear();
+//            posts.addAll(postsList1);
+//            posts.addAll(postsList);
+//            postsAdapter.setData(posts);
+//        }
+//        if(postsList2 != null){
+//            Posts posts1 = null;
+//            for (int i=0 ; i < postsList.size() ; i++){
+//                if(postsList.get(i).id.equals(postsList2.get(0).getId())){
+//                    posts1 = postsList.get(i);
+//                }
+//            }
+//            if(posts1 != null){
+//                postsList.remove(posts1);
+//            }
+//            posts.clear();
+//            posts.addAll(postsList2);
+//            posts.addAll(postsList);
+//            postsAdapter.setData(posts);
+//        }
+//    }else {
+//        posts.clear();
+//        if(postsList != null && deleteData.size() != 0){
+//            for(int i = 0 ; i< postsList.size() ; i++){
+//                for(int j = 0 ; j < deleteData.size() ; j++){
+//                    if(postsList.get(i).getId().equals(deleteData.get(j).getId())){
+//                        postsList.remove(postsList.get(i));
+//                    }
+//                }
+//            }
+//            posts.addAll(postsList);
+//            postsAdapter.setData(posts);
+//        }else {
+//            posts.addAll(postsList);
+//            postsAdapter.setData(posts);
+//        }
+//    }
+//}
+
+
+    private void callCreate() {
+        List<Posts> postsTemp = new ArrayList<>();
+        bundle = getIntent().getExtras();
+        if (bundle != null) {
+            ArrayList<Posts> postsList1 = bundle.getParcelableArrayList("dataPost");
+            if (postsList1 != null) {
+                postsTemp.addAll(postsList1);
+                postsTemp.addAll(app.getData());
+                app.setData(postsTemp);
+                postsAdapter.setData(postsTemp);
+            }
+        }
+    }
+
+    private void callUpdate() {
+        List<Posts> postsTemp = new ArrayList<>();
+        List<Posts> postsTemp2 = new ArrayList<>();
+        postsTemp.addAll(app.getData());
+        bundle = getIntent().getExtras();
+        if (bundle != null) {
+            ArrayList<Posts> postsList2 = bundle.getParcelableArrayList("dataPut");
+            if (postsList2 != null) {
+                Posts posts1 = null;
+                if (postsList2.get(0).getId() == null) {
+                    postsList2.get(0).id = "101";
+                }
+                for (int i = 0; i < postsTemp.size(); i++) {
+                    if (postsTemp.get(i).id.equals("101") && postsTemp.get(i).userId.equals(postsList2.get(0).getId())) {
+                        posts1 = postsTemp.get(i);
+                    } else if (postsTemp.get(i).id.equals(postsList2.get(0).getId())) {
+                        posts1 = postsTemp.get(i);
+                    }
+                }
+                if (posts1 != null) {
+                    postsTemp.remove(posts1);
+                    postsTemp2.addAll(postsTemp);
+                }
+                postsTemp.clear();
+                postsTemp.addAll(postsList2);
+                postsTemp.addAll(postsTemp2);
+                app.setData(postsTemp);
+                postsAdapter.setData(postsTemp);
+            }
+        }
+    }
+
+    private void callDelete() {
+        List<Posts> postsTemp = new ArrayList<>();
+        postsTemp.addAll(app.getData());
+        if (postsTemp != null && deleteData.size() != 0) {
+            if (deleteData.get(0).getId().equals("101")) {
+                for (int i = 0; i < postsTemp.size(); i++) {
+                    for (int j = 0; j < deleteData.size(); j++) {
+                        if (postsTemp.get(i).userId.equals(deleteData.get(j).userId)) {
+                            postsTemp.remove(postsTemp.get(i));
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < postsTemp.size(); i++) {
+                    for (int j = 0; j < deleteData.size(); j++) {
+                        if (postsTemp.get(i).getId().equals(deleteData.get(j).getId())) {
+                            postsTemp.remove(postsTemp.get(i));
+                        }
+                    }
+                }
+            }
+
+            app.setData(postsTemp);
+            postsAdapter.setData(postsTemp);
+
+        }
+    }
+
+
+    public void deletePost(int id) {
         Call<Void> call = jsonPlaceholder.deletePosts(id);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if(!response.isSuccessful()){
+                if (!response.isSuccessful()) {
                     return;
                 }
-                callResponse();
-                Toast.makeText(MainActivity.this, "Delete Successful "+ response.code(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Delete Successful " + response.code(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -234,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        callDelete();
     }
 
 }

@@ -63,7 +63,7 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getId = id.getText().toString();
-//                getid = Integer.parseInt(getId);
+                getid = Integer.parseInt(getId);
                 getBody = body.getText().toString();
                 getuserId = userid.getText().toString();
                 getTitle = title.getText().toString();

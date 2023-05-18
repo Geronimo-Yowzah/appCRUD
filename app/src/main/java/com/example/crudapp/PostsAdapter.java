@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -56,9 +57,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
     @Override
     public void onBindViewHolder(@NonNull PostsViewHolder holder, int position) {
         Posts post = postsList.get(position);
-        holder.id.setText(post.getId());
-        holder.body.setText(post.getBody());
-        holder.userid.setText(post.getUserID());
+//        holder.id.setText(post.getId());
+//        holder.body.setText(post.getBody());
+//        holder.userid.setText(post.getUserID());
         holder.title.setText("Title : "+post.getTitle());
 
         holder.item.setOnClickListener(new View.OnClickListener() {
@@ -90,14 +91,15 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsViewHol
 
     public class PostsViewHolder extends RecyclerView.ViewHolder{
         TextView userid,id,body,title;
-        LinearLayout item,editPosts,deletePosts;
+        ImageView editPosts,deletePosts;
+        LinearLayout item;
         public PostsViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            userid = itemView.findViewById(R.id.text_userid);
-            id = itemView.findViewById(R.id.text_id);
+//            userid = itemView.findViewById(R.id.text_userid);
+//            id = itemView.findViewById(R.id.text_id);
             title = itemView.findViewById(R.id.text_title);
-            body = itemView.findViewById(R.id.text_body);
+//            body = itemView.findViewById(R.id.text_body);
             item = itemView.findViewById(R.id.item);
             editPosts = itemView.findViewById(R.id.editPosts);
             deletePosts = itemView.findViewById(R.id.deletePosts);
