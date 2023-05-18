@@ -30,6 +30,6 @@ public interface JSONPlaceholder {
     @PATCH("posts/{id}")
     Call<Posts> patchPosts(@Path("id")String id,@Body Posts posts);
 
-    @DELETE("posts")
-    Call<Posts> deletePosts(@Path("id")int id);
+    @DELETE("posts/{id}")
+    Call<Void> deletePosts(@Path("id")int id);
 }
